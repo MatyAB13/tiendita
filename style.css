@@ -74,6 +74,52 @@ h2 { color: var(--secondary-pastel); margin-bottom: 1rem; }
 .btn-danger { background-color: #ffb6c1; color: white; }
 .btn-outline { border: 1px solid var(--secondary-pastel); color: var(--secondary-pastel); background: transparent; }
 
+/* === MEJORAS DEL CARRITO === */
+
+/* Botón del carrito con badge */
+.cart-btn-container {
+    position: relative;
+    display: inline-block;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff6b6b;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    transform: scale(0);
+}
+
+.cart-badge.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Animación de vibración */
+@keyframes cartPulse {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.15); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.cart-animate {
+    animation: cartPulse 0.4s ease;
+}
+
 /* Carrito Flotante */
 .cart-float {
     position: fixed;
