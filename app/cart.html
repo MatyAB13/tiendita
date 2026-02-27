@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito — MiTienda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-wrapper">
+
+  <!-- ── NAVBAR ─────────────────────────────────────────── -->
+  <nav class="navbar" role="navigation" aria-label="Navegacion principal">
+    <div class="container navbar-inner">
+      <a href="index.html" class="navbar-brand">MiTienda</a>
+      <div class="navbar-links" id="navLinks">
+        <a href="index.html">Inicio</a>
+        <a href="cart.html" class="cart-link active" aria-label="Carrito">
+          Carrito
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ──────────────────────────────────────────── -->
+  <main id="main-content">
+    <div class="container">
+
+      <div class="section-header">
+        <h1 class="section-title">Tu carrito</h1>
+        <button class="btn btn-ghost btn-sm" id="clearCartBtn" style="display:none;">
+          Vaciar carrito
+        </button>
+      </div>
+
+      <!-- Estado vacio -->
+      <div class="empty-state" id="emptyCart" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+        </svg>
+        <h3>Tu carrito esta vacio</h3>
+        <p>Agrega productos desde la tienda para comenzar.</p>
+        <a href="index.html" class="btn btn-primary" style="margin-top:1rem;display:inline-flex;">Ver productos</a>
+      </div>
+
+      <!-- Layout carrito + resumen -->
+      <div class="cart-layout" id="cartLayout" style="display:none;">
+
+        <!-- Lista de items -->
+        <section aria-label="Productos en el carrito">
+          <div class="cart-items" id="cartItemsList" role="list"></div>
+        </section>
+
+        <!-- Resumen -->
+        <aside>
+          <div class="cart-summary">
+            <h2 style="margin-bottom:1rem;font-size:1rem;">Resumen del pedido</h2>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="summarySubtotal">$0</span>
+            </div>
+            <div class="summary-row">
+              <span>Descuentos</span>
+              <span id="summaryDiscount" style="color:var(--accent);">-$0</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total</span>
+              <span id="summaryTotal">$0</span>
+            </div>
+
+            <a href="checkout.html" class="btn btn-primary btn-full" id="checkoutBtn"
+               style="margin-top:1.25rem;display:flex;"
+               aria-label="Proceder al pago">
+              Proceder al pago
+            </a>
+            <a href="index.html" class="btn btn-ghost btn-full" style="margin-top:.6rem;display:flex;">
+              Seguir comprando
+            </a>
+          </div>
+
+          <!-- Nota de stock -->
+          <div class="card" style="margin-top:1rem;font-size:.82rem;color:var(--text-muted);">
+            <strong style="color:var(--text);">Importante:</strong> el stock se valida al confirmar el pedido. 
+            Si un producto no tiene stock suficiente, te avisaremos antes de finalizar.
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p>&copy; <span id="footerYear"></span> MiTienda. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- ── TOAST ──────────────────────────────────────────── -->
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- ── SCRIPTS ────────────────────────────────────────── -->
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      collection,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ── Helpers ───────────────────────────────────────────
+    function getCart() {
+      try { return JSON.parse(localStorage.getItem("cart") || "[]"); }
+      catch { return []; }
+    }
+
+    function saveCart(cart) {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    function formatPrice(n) {
+      return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 });
+    }
+
+    function updateCartBadge() {
+      const count = getCart().reduce((s, i) => s + i.qty, 0);
+      const badge = document.getElementById("cartCount");
+      if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? "flex" : "none";
+      }
+    }
+
+    // ── Render carrito ────────────────────────────────────
+    function renderCart() {
+      const cart       = getCart();
+      const emptyEl    = document.getElementById("emptyCart");
+      const layoutEl   = document.getElementById("cartLayout");
+      const clearBtn   = document.getElementById("clearCartBtn");
+      const listEl     = document.getElementById("cartItemsList");
+      const checkoutBtn = document.getElementById("checkoutBtn");
+
+      updateCartBadge();
+
+      if (!cart.length) {
+        emptyEl.style.display  = "block";
+        layoutEl.style.display = "none";
+        clearBtn.style.display = "none";
+        return;
+      }
+
+      emptyEl.style.display  = "none";
+      layoutEl.style.display = "grid";
+      clearBtn.style.display = "inline-flex";
+
+      listEl.innerHTML = "";
+
+      let subtotal = 0;
+      let totalSinDesc = 0;
+
+      cart.forEach(item => {
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+
+        const el = document.createElement("div");
+        el.className = "cart-item";
+        el.setAttribute("role", "listitem");
+        el.innerHTML = `
+          <div class="cart-item-img">
+            <img src="${item.image || "https://placehold.co/72x72?text=Producto"}"
+                 alt="${item.name}"
+                 onerror="this.src='https://placehold.co/72x72?text=Sin+imagen'" />
+          </div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">${formatPrice(item.price)} c/u</div>
+          </div>
+          <div class="cart-item-qty" role="group" aria-label="Cantidad de ${item.name}">
+            <button class="qty-btn" data-action="dec" data-id="${item.id}" aria-label="Disminuir cantidad">−</button>
+            <span class="qty-number" aria-live="polite">${item.qty}</span>
+            <button class="qty-btn" data-action="inc" data-id="${item.id}" aria-label="Aumentar cantidad">+</button>
+          </div>
+          <div class="cart-item-total">${formatPrice(itemTotal)}</div>
+          <button class="btn btn-ghost btn-sm" data-action="remove" data-id="${item.id}" aria-label="Eliminar ${item.name}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        `;
+        listEl.appendChild(el);
+      });
+
+      // Summary (en este flujo los precios en cart ya son el precio final con descuento)
+      const discountTotal = 0; // El descuento ya fue aplicado al guardar en cart
+      document.getElementById("summarySubtotal").textContent = formatPrice(subtotal);
+      document.getElementById("summaryDiscount").textContent = formatPrice(0);
+      document.getElementById("summaryTotal").textContent    = formatPrice(subtotal);
+
+      // Listeners de cantidad y eliminar
+      listEl.querySelectorAll("button[data-action]").forEach(btn => {
+        btn.addEventListener("click", () => handleCartAction(btn.dataset.action, btn.dataset.id));
+      });
+    }
+
+    // ── Acciones del carrito ──────────────────────────────
+    function handleCartAction(action, id) {
+      let cart = getCart();
+      const idx = cart.findIndex(i => i.id === id);
+      if (idx === -1) return;
+
+      if (action === "inc") {
+        if (cart[idx].qty >= cart[idx].stock) {
+          showToast("No hay mas stock disponible", "warning");
+          return;
+        }
+        cart[idx].qty++;
+      } else if (action === "dec") {
+        if (cart[idx].qty <= 1) {
+          // Eliminar si llega a 0
+          cart.splice(idx, 1);
+        } else {
+          cart[idx].qty--;
+        }
+      } else if (action === "remove") {
+        cart.splice(idx, 1);
+        showToast("Producto eliminado del carrito", "info");
+      }
+
+      saveCart(cart);
+      renderCart();
+    }
+
+    // ── Vaciar carrito ────────────────────────────────────
+    document.getElementById("clearCartBtn").addEventListener("click", () => {
+      if (!confirm("¿Vaciar todo el carrito?")) return;
+      localStorage.removeItem("cart");
+      renderCart();
+      showToast("Carrito vaciado", "info");
+    });
+
+    // ── Toast ─────────────────────────────────────────────
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity   = "0";
+        toast.style.transition = "opacity .3s";
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    // ── Hamburger ─────────────────────────────────────────
+    const hamburger = document.getElementById("hamburger");
+    const navLinks  = document.getElementById("navLinks");
+    hamburger.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      hamburger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    // ── Init ──────────────────────────────────────────────
+    document.getElementById("footerYear").textContent = new Date().getFullYear();
+    renderCart();
+  </script>
+</body>
+</html>
