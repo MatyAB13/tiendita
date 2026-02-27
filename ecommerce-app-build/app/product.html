@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalle de Producto — MiTienda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-wrapper">
+
+  <!-- ── NAVBAR ─────────────────────────────────────────── -->
+  <nav class="navbar" role="navigation" aria-label="Navegacion principal">
+    <div class="container navbar-inner">
+      <a href="index.html" class="navbar-brand">MiTienda</a>
+      <div class="navbar-links" id="navLinks">
+        <a href="index.html">Inicio</a>
+        <a href="cart.html" class="cart-link" aria-label="Carrito">
+          Carrito
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ──────────────────────────────────────────── -->
+  <main id="main-content">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb" aria-label="Ruta de navegacion">
+        <a href="index.html">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <span id="breadcrumbCategory">Categoria</span>
+        <span aria-hidden="true">/</span>
+        <span id="breadcrumbName" aria-current="page">Producto</span>
+      </nav>
+
+      <!-- Loading -->
+      <div class="loading-overlay" id="loadingProduct">
+        <div class="spinner" role="status">
+          <span class="sr-only">Cargando producto...</span>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div class="empty-state" id="errorState" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+        <h3>Producto no encontrado</h3>
+        <p>El producto que buscas no existe o fue eliminado.</p>
+        <a href="index.html" class="btn btn-primary" style="margin-top:1rem;display:inline-flex;">Volver a la tienda</a>
+      </div>
+
+      <!-- Detalle -->
+      <div class="product-detail" id="productDetail" style="display:none;" itemscope itemtype="https://schema.org/Product">
+
+        <!-- Imagen -->
+        <div class="product-detail-img">
+          <img id="productImg" src="" alt="" itemprop="image"
+            onerror="this.src='https://placehold.co/600x600?text=Imagen+no+disponible'" />
+        </div>
+
+        <!-- Info -->
+        <div class="product-detail-info">
+          <span class="product-category" id="productCategory" itemprop="category"></span>
+          <h1 id="productName" itemprop="name"></h1>
+
+          <!-- Precio -->
+          <div class="product-detail-price">
+            <span class="price-final" id="productFinalPrice" itemprop="price"></span>
+            <span class="price-original" id="productOriginalPrice"></span>
+            <span class="badge badge-discount" id="productDiscountBadge" style="display:none;"></span>
+          </div>
+
+          <!-- Stock indicator -->
+          <div class="stock-indicator" id="stockIndicator" aria-live="polite">
+            <span class="stock-dot"></span>
+            <span id="stockText"></span>
+          </div>
+
+          <!-- Descripcion -->
+          <p id="productDescription" itemprop="description" style="color:var(--text);line-height:1.7;"></p>
+
+          <!-- Cantidad -->
+          <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;" id="qtySection">
+            <label for="qtyInput" style="font-weight:600;font-size:.9rem;">Cantidad:</label>
+            <div class="cart-item-qty">
+              <button class="qty-btn" id="qtyDec" aria-label="Disminuir cantidad">−</button>
+              <span class="qty-number" id="qtyDisplay" aria-live="polite">1</span>
+              <button class="qty-btn" id="qtyInc" aria-label="Aumentar cantidad">+</button>
+            </div>
+          </div>
+
+          <!-- Boton agregar -->
+          <button class="btn btn-primary" id="addToCartBtn" style="margin-top:.5rem;">
+            Agregar al carrito
+          </button>
+          <a href="cart.html" class="btn btn-secondary" style="display:inline-flex;">
+            Ver carrito
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p>&copy; <span id="footerYear"></span> MiTienda. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- ── TOAST ──────────────────────────────────────────── -->
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- ── SCRIPTS ────────────────────────────────────────── -->
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ── Estado local ──────────────────────────────────────
+    let currentProduct = null;
+    let qty = 1;
+
+    // ── Carrito ───────────────────────────────────────────
+    function getCart() {
+      try { return JSON.parse(localStorage.getItem("cart") || "[]"); }
+      catch { return []; }
+    }
+
+    function updateCartBadge() {
+      const count = getCart().reduce((s, i) => s + i.qty, 0);
+      const badge = document.getElementById("cartCount");
+      if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? "flex" : "none";
+      }
+    }
+
+    function addToCart() {
+      if (!currentProduct) return;
+      if (currentProduct.stock <= 0) {
+        showToast("Este producto esta agotado", "error");
+        return;
+      }
+      if (qty < 1 || qty > currentProduct.stock) {
+        showToast("Cantidad invalida", "error");
+        return;
+      }
+
+      const cart  = getCart();
+      const index = cart.findIndex(i => i.id === currentProduct.id);
+
+      if (index > -1) {
+        const newQty = cart[index].qty + qty;
+        if (newQty > currentProduct.stock) {
+          showToast(`Solo hay ${currentProduct.stock} unidades disponibles`, "warning");
+          return;
+        }
+        cart[index].qty = newQty;
+      } else {
+        cart.push({
+          id:    currentProduct.id,
+          name:  currentProduct.name,
+          price: calcFinalPrice(currentProduct),
+          image: currentProduct.image,
+          stock: currentProduct.stock,
+          qty:   qty
+        });
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartBadge();
+      showToast(`${qty} x "${currentProduct.name}" agregado al carrito`, "success");
+    }
+
+    // ── Precio con descuento ──────────────────────────────
+    function calcFinalPrice(p) {
+      if (p.discount && p.discount > 0) {
+        return p.price - (p.price * p.discount / 100);
+      }
+      return p.price;
+    }
+
+    function formatPrice(n) {
+      return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 });
+    }
+
+    // ── Renderizar producto ───────────────────────────────
+    function renderProduct(p) {
+      const finalPrice  = calcFinalPrice(p);
+      const hasDiscount = p.discount && p.discount > 0;
+      const isOut       = p.stock <= 0;
+
+      // Breadcrumb
+      document.getElementById("breadcrumbCategory").textContent = p.category || "General";
+      document.getElementById("breadcrumbName").textContent = p.name;
+      document.title = `${p.name} — MiTienda`;
+
+      // Imagen
+      const img = document.getElementById("productImg");
+      img.src = p.image || "https://placehold.co/600x600?text=Producto+sin+imagen";
+      img.alt = p.name;
+
+      // Datos
+      document.getElementById("productCategory").textContent    = p.category || "General";
+      document.getElementById("productName").textContent         = p.name;
+      document.getElementById("productDescription").textContent  = p.description || "";
+
+      // Precios
+      document.getElementById("productFinalPrice").textContent = formatPrice(finalPrice);
+      if (hasDiscount) {
+        document.getElementById("productOriginalPrice").textContent = formatPrice(p.price);
+        const discBadge = document.getElementById("productDiscountBadge");
+        discBadge.textContent = `-${p.discount}%`;
+        discBadge.style.display = "inline-flex";
+      }
+
+      // Stock
+      const stockEl = document.getElementById("stockIndicator");
+      const stockTxt = document.getElementById("stockText");
+      if (isOut) {
+        stockEl.className = "stock-indicator out-stock";
+        stockTxt.textContent = "Agotado";
+      } else {
+        stockEl.className = "stock-indicator in-stock";
+        stockTxt.textContent = `${p.stock} en stock`;
+      }
+
+      // Controles qty
+      const qtySection  = document.getElementById("qtySection");
+      const addToCartBtn = document.getElementById("addToCartBtn");
+
+      if (isOut) {
+        qtySection.style.display  = "none";
+        addToCartBtn.disabled     = true;
+        addToCartBtn.textContent  = "Agotado";
+        addToCartBtn.setAttribute("aria-disabled", "true");
+      } else {
+        qtySection.style.display = "flex";
+        addToCartBtn.disabled    = false;
+        addToCartBtn.textContent = "Agregar al carrito";
+      }
+
+      // Mostrar detalle
+      document.getElementById("loadingProduct").style.display = "none";
+      document.getElementById("productDetail").style.display  = "grid";
+    }
+
+    // ── Controles de cantidad ─────────────────────────────
+    function updateQtyDisplay() {
+      document.getElementById("qtyDisplay").textContent = qty;
+      document.getElementById("qtyDec").disabled = qty <= 1;
+      document.getElementById("qtyInc").disabled = currentProduct && qty >= currentProduct.stock;
+    }
+
+    document.getElementById("qtyDec").addEventListener("click", () => {
+      if (qty > 1) { qty--; updateQtyDisplay(); }
+    });
+
+    document.getElementById("qtyInc").addEventListener("click", () => {
+      if (currentProduct && qty < currentProduct.stock) { qty++; updateQtyDisplay(); }
+      else { showToast("No hay mas unidades disponibles", "warning"); }
+    });
+
+    document.getElementById("addToCartBtn").addEventListener("click", addToCart);
+
+    // ── Cargar producto desde Firestore ───────────────────
+    async function loadProduct() {
+      const params = new URLSearchParams(window.location.search);
+      const id     = params.get("id");
+
+      if (!id) {
+        showError();
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "products", id));
+        if (!snap.exists()) {
+          showError();
+          return;
+        }
+        currentProduct = { id: snap.id, ...snap.data() };
+        renderProduct(currentProduct);
+        updateQtyDisplay();
+      } catch (err) {
+        console.error("[Producto] Error al cargar:", err);
+        showError();
+        showToast("Error al cargar el producto", "error");
+      }
+    }
+
+    function showError() {
+      document.getElementById("loadingProduct").style.display = "none";
+      document.getElementById("errorState").style.display    = "block";
+    }
+
+    // ── Toast ─────────────────────────────────────────────
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity   = "0";
+        toast.style.transition = "opacity .3s";
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    // ── Hamburger ─────────────────────────────────────────
+    const hamburger = document.getElementById("hamburger");
+    const navLinks  = document.getElementById("navLinks");
+    hamburger.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      hamburger.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    // ── Init ──────────────────────────────────────────────
+    document.getElementById("footerYear").textContent = new Date().getFullYear();
+    updateCartBadge();
+    loadProduct();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin — MiTienda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── LAYOUT DASHBOARD ───────────────────────────────────── -->
+<div class="dashboard-layout" id="dashboardLayout" style="display:none;">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu del panel">
+    <div class="sidebar-brand">MiTienda Admin</div>
+    <nav class="sidebar-nav">
+      <a href="#" class="active" data-section="overview"  aria-current="page">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Resumen
+      </a>
+      <a href="#" data-section="products">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+        </svg>
+        Productos
+      </a>
+      <a href="#" data-section="orders">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        Pedidos
+      </a>
+      <a href="#" data-section="settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        Configuracion
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm btn-full" id="logoutBtn" aria-label="Cerrar sesion">
+        Cerrar sesion
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <div class="dashboard-main">
+
+    <!-- Topbar -->
+    <header class="topbar" role="banner">
+      <button class="hamburger" id="sidebarToggle" aria-label="Abrir menu lateral" aria-expanded="false" aria-controls="sidebar" style="display:flex;">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="topbarTitle">Resumen</div>
+      <div class="topbar-user">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+        <span id="userEmail">Cargando...</span>
+      </div>
+    </header>
+
+    <!-- Contenido dinamico -->
+    <div class="dashboard-content">
+
+      <!-- ======== SECCION: RESUMEN ======== -->
+      <section id="section-overview" aria-labelledby="overviewTitle">
+        <h1 style="margin-bottom:1.5rem;font-size:1.25rem;" id="overviewTitle">Panel de control</h1>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total productos</div>
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-sub">en catalogo</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">En oferta</div>
+            <div class="stat-value" id="statDiscount">—</div>
+            <div class="stat-sub">con descuento activo</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Agotados</div>
+            <div class="stat-value" id="statOut">—</div>
+            <div class="stat-sub" style="color:var(--danger);">sin stock</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total pedidos</div>
+            <div class="stat-value" id="statOrders">—</div>
+            <div class="stat-sub">registrados</div>
+          </div>
+        </div>
+
+        <!-- Pedidos recientes en resumen -->
+        <div class="table-wrapper">
+          <div class="table-header">
+            <h2>Ultimos pedidos</h2>
+            <button class="btn btn-ghost btn-sm" data-section="orders">Ver todos</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table role="table" aria-label="Ultimos pedidos">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Metodo</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersBody">
+                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======== SECCION: PRODUCTOS ======== -->
+      <section id="section-products" style="display:none;" aria-labelledby="productsAdminTitle">
+        <div class="section-header">
+          <h1 style="font-size:1.25rem;" id="productsAdminTitle">Productos</h1>
+          <button class="btn btn-primary btn-sm" id="newProductBtn">
+            + Nuevo producto
+          </button>
+        </div>
+
+        <div class="table-wrapper">
+          <div style="overflow-x:auto;">
+            <table role="table" aria-label="Lista de productos">
+              <thead>
+                <tr>
+                  <th scope="col">Imagen</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Categoria</th>
+                  <th scope="col">Precio</th>
+                  <th scope="col">Desc.</th>
+                  <th scope="col">Stock</th>
+                  <th scope="col">Vendidos</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem;">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======== SECCION: PEDIDOS ======== -->
+      <section id="section-orders" style="display:none;" aria-labelledby="ordersTitle">
+        <div class="section-header">
+          <h1 style="font-size:1.25rem;" id="ordersTitle">Pedidos</h1>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <select id="orderFilter" class="status-select" aria-label="Filtrar por estado">
+              <option value="all">Todos los estados</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Pago">Pago</option>
+              <option value="Confirmado">Confirmado</option>
+              <option value="Enviado">Enviado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <div style="overflow-x:auto;">
+            <table role="table" aria-label="Lista de pedidos">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Cliente</th>
+                  <th scope="col">Productos</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Pago</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Accion</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======== SECCION: CONFIGURACION ======== -->
+      <section id="section-settings" style="display:none;" aria-labelledby="settingsTitle">
+        <h1 style="font-size:1.25rem;margin-bottom:1.5rem;" id="settingsTitle">Configuracion</h1>
+        <div style="display:grid;gap:1.25rem;max-width:540px;">
+
+          <!-- Pix -->
+          <div class="card">
+            <h2 style="font-size:1rem;margin-bottom:1rem;">Clave Pix</h2>
+            <div class="form-group">
+              <label for="pixKeyInput">Clave Pix (email, CPF, telefono, aleatoria)</label>
+              <input type="text" id="pixKeyInput" placeholder="tu@email.com o 11999999999" />
+            </div>
+            <button class="btn btn-primary btn-sm" id="savePixBtn">Guardar clave Pix</button>
+          </div>
+
+          <!-- Cartelera/Aviso -->
+          <div class="card">
+            <h2 style="font-size:1rem;margin-bottom:1rem;">Cartelera / Aviso de la tienda</h2>
+            <div class="form-group">
+              <label for="cartillaInput">Texto del aviso (aparece en el hero)</label>
+              <textarea id="cartillaInput" rows="3" placeholder="Ej: Envios gratis por compras mayores a $5000"></textarea>
+            </div>
+            <button class="btn btn-primary btn-sm" id="saveCartillaBtn">Guardar aviso</button>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- /dashboard-content -->
+  </div><!-- /dashboard-main -->
+</div><!-- /dashboard-layout -->
+
+<!-- ── LOADING INICIAL ────────────────────────────────────── -->
+<div id="authLoading" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);">
+  <div class="spinner" role="status"><span class="sr-only">Verificando sesion...</span></div>
+</div>
+
+<!-- ======================================================= -->
+<!-- MODAL: CREAR / EDITAR PRODUCTO                          -->
+<!-- ======================================================= -->
+<div class="modal-backdrop" id="productModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="productModalTitle">Nuevo producto</h3>
+      <button class="modal-close" id="closeProductModal" aria-label="Cerrar modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="productForm" novalidate>
+        <input type="hidden" id="productId" />
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group" style="grid-column:1/-1;">
+            <label for="productName">Nombre *</label>
+            <input type="text" id="productName" placeholder="Nombre del producto" required />
+            <span class="form-error" id="errProductName" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="productCategory">Categoria *</label>
+            <input type="text" id="productCategory" placeholder="Ej: Ropa, Calzado..." required />
+            <span class="form-error" id="errProductCategory" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="productPrice">Precio *</label>
+            <input type="number" id="productPrice" placeholder="0.00" min="0" step="0.01" required />
+            <span class="form-error" id="errProductPrice" role="alert"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="productDiscount">Descuento (%)</label>
+            <input type="number" id="productDiscount" placeholder="0" min="0" max="100" step="1" value="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="productStock">Stock *</label>
+            <input type="number" id="productStock" placeholder="0" min="0" step="1" required />
+            <span class="form-error" id="errProductStock" role="alert"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="productDescription">Descripcion</label>
+          <textarea id="productDescription" rows="3" placeholder="Descripcion del producto..."></textarea>
+        </div>
+
+        <!-- Imagen actual (edicion) -->
+        <div id="currentImgWrap" style="display:none;margin-bottom:.75rem;">
+          <label style="font-size:.85rem;font-weight:600;">Imagen actual:</label><br/>
+          <img id="currentProductImg" class="current-img" src="" alt="Imagen actual del producto" />
+        </div>
+
+        <!-- Upload imagen -->
+        <div class="form-group">
+          <label for="productImageFile">Imagen del producto</label>
+          <div class="upload-area" id="uploadArea" role="button" tabindex="0"
+               aria-label="Subir imagen del producto">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="margin:0 auto .5rem;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            Haz clic o arrastra una imagen aqui<br/>
+            <span style="font-size:.75rem;">PNG, JPG, WEBP — Max 5MB</span>
+          </div>
+          <input type="file" id="productImageFile" accept="image/*" style="display:none;" aria-label="Seleccionar imagen" />
+          <img id="uploadPreview" class="upload-preview" src="" alt="Vista previa de la imagen" />
+          <div id="uploadProgress" style="display:none;margin-top:.5rem;">
+            <div style="height:4px;background:var(--border);border-radius:2px;">
+              <div id="progressBar" style="height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width .3s;"></div>
+            </div>
+            <span style="font-size:.75rem;color:var(--text-muted);" id="progressText">Subiendo...</span>
+          </div>
+        </div>
+
+        <!-- Destacado -->
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+          <input type="checkbox" id="productFeatured" style="accent-color:var(--accent);width:16px;height:16px;" />
+          <label for="productFeatured" style="font-size:.875rem;font-weight:500;cursor:pointer;">Producto destacado</label>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="cancelProductBtn">Cancelar</button>
+      <button class="btn btn-primary" id="saveProductBtn">Guardar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ──────────────────────────────────────────────── -->
+<div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+<!-- =====================================================
+     SCRIPTS — Dashboard Admin
+     ===================================================== -->
+<script type="module">
+  import { auth }    from "./firebase-config.js";
+  import { db }      from "./firebase-config.js";
+  import { storage } from "./firebase-config.js";
+
+  import {
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  import {
+    collection,
+    doc,
+    addDoc,
+    getDoc,
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    limit,
+    serverTimestamp,
+    runTransaction,
+    increment
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  import {
+    ref,
+    uploadBytesResumable,
+    getDownloadURL,
+    deleteObject
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+  // ── Estado global ──────────────────────────────────────
+  let allProducts   = [];
+  let allOrders     = [];
+  let selectedFile  = null;  // archivo imagen pendiente de subir
+  let editingId     = null;  // id del producto en edicion (null = nuevo)
+
+  // ── Auth guard ─────────────────────────────────────────
+  onAuthStateChanged(auth, user => {
+    document.getElementById("authLoading").style.display    = "none";
+    if (!user) {
+      window.location.replace("login.html");
+      return;
+    }
+    document.getElementById("dashboardLayout").style.display = "flex";
+    document.getElementById("userEmail").textContent = user.email;
+    initDashboard();
+  });
+
+  // ── Logout ─────────────────────────────────────────────
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      window.location.replace("login.html");
+    } catch (err) {
+      showToast("Error al cerrar sesion", "error");
+    }
+  });
+
+  // ── Navegacion lateral ─────────────────────────────────
+  function setSection(sectionName) {
+    const sections = ["overview", "products", "orders", "settings"];
+    sections.forEach(s => {
+      const el = document.getElementById(`section-${s}`);
+      if (el) el.style.display = s === sectionName ? "block" : "none";
+    });
+
+    document.querySelectorAll(".sidebar-nav a").forEach(a => {
+      const isActive = a.dataset.section === sectionName;
+      a.classList.toggle("active", isActive);
+      a.setAttribute("aria-current", isActive ? "page" : "false");
+    });
+
+    const titles = {
+      overview:  "Resumen",
+      products:  "Productos",
+      orders:    "Pedidos",
+      settings:  "Configuracion"
+    };
+    document.getElementById("topbarTitle").textContent = titles[sectionName] || "";
+  }
+
+  document.querySelectorAll("[data-section]").forEach(el => {
+    el.addEventListener("click", e => {
+      e.preventDefault();
+      setSection(el.dataset.section);
+      // Cerrar sidebar en mobile
+      document.getElementById("sidebar").classList.remove("open");
+    });
+  });
+
+  // Sidebar toggle (mobile)
+  document.getElementById("sidebarToggle").addEventListener("click", () => {
+    const sidebar = document.getElementById("sidebar");
+    const open    = sidebar.classList.toggle("open");
+    document.getElementById("sidebarToggle").setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  // ── Helpers ────────────────────────────────────────────
+  function formatPrice(n) {
+    return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 });
+  }
+
+  function formatDate(ts) {
+    if (!ts || !ts.toDate) return "—";
+    return ts.toDate().toLocaleDateString("es-AR", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
+  }
+
+  function statusBadge(estado) {
+    const map = {
+      "Pendente":   "badge badge-pending",
+      "Pago":       "badge badge-paid",
+      "Confirmado": "badge badge-confirmed",
+      "Enviado":    "badge badge-shipped",
+      "Cancelado":  "badge badge-cancelled",
+    };
+    return `<span class="${map[estado] || "badge"}">${estado}</span>`;
+  }
+
+  // ── Toast ──────────────────────────────────────────────
+  function showToast(msg, type = "info") {
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity   = "0";
+      toast.style.transition = "opacity .3s";
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  }
+
+  // ===================================================
+  // PRODUCTOS
+  // ===================================================
+
+  /** Carga productos en tiempo real y actualiza tabla + stats */
+  function listenProducts() {
+    const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+    onSnapshot(q, snapshot => {
+      allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderProductsTable();
+      updateStats();
+    }, err => {
+      console.error("[Dashboard] Error productos:", err);
+      showToast("Error al cargar productos", "error");
+    });
+  }
+
+  function renderProductsTable() {
+    const tbody = document.getElementById("productsTableBody");
+    if (!allProducts.length) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem;">Sin productos</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = allProducts.map(p => {
+      const final = p.discount > 0 ? p.price - (p.price * p.discount / 100) : p.price;
+      const stockBadge = p.stock <= 0
+        ? `<span class="badge badge-out">Agotado</span>`
+        : `<span style="color:var(--accent);font-weight:600;">${p.stock}</span>`;
+      return `
+        <tr>
+          <td>
+            <img class="td-img" src="${p.image || "https://placehold.co/44x44?text=Sin+imagen"}"
+                 alt="${p.name}"
+                 onerror="this.src='https://placehold.co/44x44?text=Error'" />
+          </td>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.category || "—"}</td>
+          <td>${formatPrice(final)}</td>
+          <td>${p.discount > 0 ? `<span style="color:var(--danger);font-weight:600;">${p.discount}%</span>` : "—"}</td>
+          <td>${stockBadge}</td>
+          <td>${p.sold || 0}</td>
+          <td>${p.featured ? '<span class="badge badge-featured">Destacado</span>' : "—"}</td>
+          <td>
+            <div style="display:flex;gap:.35rem;">
+              <button class="btn btn-ghost btn-sm" data-action="edit" data-id="${p.id}" aria-label="Editar ${p.name}">
+                Editar
+              </button>
+              <button class="btn btn-danger btn-sm" data-action="delete" data-id="${p.id}" aria-label="Eliminar ${p.name}">
+                Eliminar
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    // Listeners tabla productos
+    tbody.querySelectorAll("button[data-action]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.action === "edit")   openEditProduct(btn.dataset.id);
+        if (btn.dataset.action === "delete") confirmDeleteProduct(btn.dataset.id);
+      });
+    });
+  }
+
+  // ── Stats ──────────────────────────────────────────────
+  function updateStats() {
+    document.getElementById("statTotal").textContent    = allProducts.length;
+    document.getElementById("statDiscount").textContent = allProducts.filter(p => p.discount > 0).length;
+    document.getElementById("statOut").textContent      = allProducts.filter(p => p.stock <= 0).length;
+    document.getElementById("statOrders").textContent   = allOrders.length;
+  }
+
+  // ── Modal producto ─────────────────────────────────────
+  function openProductModal(title) {
+    document.getElementById("productModalTitle").textContent = title;
+    document.getElementById("productModal").classList.add("open");
+    document.getElementById("productName").focus();
+  }
+
+  function closeProductModal() {
+    document.getElementById("productModal").classList.remove("open");
+    resetProductForm();
+  }
+
+  function resetProductForm() {
+    editingId    = null;
+    selectedFile = null;
+
+    document.getElementById("productId").value           = "";
+    document.getElementById("productName").value         = "";
+    document.getElementById("productCategory").value     = "";
+    document.getElementById("productPrice").value        = "";
+    document.getElementById("productDiscount").value     = "0";
+    document.getElementById("productStock").value        = "";
+    document.getElementById("productDescription").value  = "";
+    document.getElementById("productFeatured").checked   = false;
+    document.getElementById("productImageFile").value    = "";
+    document.getElementById("uploadPreview").style.display = "none";
+    document.getElementById("currentImgWrap").style.display = "none";
+    document.getElementById("uploadProgress").style.display  = "none";
+    document.getElementById("progressBar").style.width       = "0%";
+
+    // Limpiar errores
+    ["errProductName","errProductCategory","errProductPrice","errProductStock"].forEach(id => {
+      document.getElementById(id).textContent = "";
+    });
+  }
+
+  // Nuevo producto
+  document.getElementById("newProductBtn").addEventListener("click", () => {
+    resetProductForm();
+    openProductModal("Nuevo producto");
+  });
+
+  // Editar producto
+  async function openEditProduct(id) {
+    resetProductForm();
+    editingId = id;
+    try {
+      const snap = await getDoc(doc(db, "products", id));
+      if (!snap.exists()) { showToast("Producto no encontrado", "error"); return; }
+      const p = snap.data();
+
+      document.getElementById("productId").value           = id;
+      document.getElementById("productName").value         = p.name || "";
+      document.getElementById("productCategory").value     = p.category || "";
+      document.getElementById("productPrice").value        = p.price || 0;
+      document.getElementById("productDiscount").value     = p.discount || 0;
+      document.getElementById("productStock").value        = p.stock || 0;
+      document.getElementById("productDescription").value  = p.description || "";
+      document.getElementById("productFeatured").checked   = p.featured || false;
+
+      if (p.image) {
+        const wrap    = document.getElementById("currentImgWrap");
+        const currImg = document.getElementById("currentProductImg");
+        currImg.src   = p.image;
+        wrap.style.display = "block";
+      }
+
+      openProductModal("Editar producto");
+    } catch (err) {
+      console.error("[Dashboard] Error abriendo edicion:", err);
+      showToast("Error al cargar el producto", "error");
+    }
+  }
+
+  // Cerrar modal
+  document.getElementById("closeProductModal").addEventListener("click", closeProductModal);
+  document.getElementById("cancelProductBtn").addEventListener("click", closeProductModal);
+  document.getElementById("productModal").addEventListener("click", e => {
+    if (e.target === document.getElementById("productModal")) closeProductModal();
+  });
+
+  // ── Upload imagen ──────────────────────────────────────
+  const uploadArea     = document.getElementById("uploadArea");
+  const fileInput      = document.getElementById("productImageFile");
+  const uploadPreview  = document.getElementById("uploadPreview");
+
+  uploadArea.addEventListener("click", () => fileInput.click());
+  uploadArea.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") fileInput.click();
+  });
+
+  // Drag & drop
+  uploadArea.addEventListener("dragover", e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = "var(--accent)";
+  });
+  uploadArea.addEventListener("dragleave", () => {
+    uploadArea.style.borderColor = "";
+  });
+  uploadArea.addEventListener("drop", e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = "";
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) handleFileSelect(file);
+  });
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files[0]) handleFileSelect(fileInput.files[0]);
+  });
+
+  function handleFileSelect(file) {
+    if (file.size > 5 * 1024 * 1024) {
+      showToast("La imagen debe ser menor a 5MB", "error");
+      return;
+    }
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      uploadPreview.src          = e.target.result;
+      uploadPreview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /** Sube imagen a Firebase Storage y retorna la URL */
+  async function uploadImage(file) {
+    const fileName  = `products/${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    const progressWrap = document.getElementById("uploadProgress");
+    const progressBar  = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    progressWrap.style.display = "block";
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on("state_changed",
+        snapshot => {
+          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          progressBar.style.width    = `${pct}%`;
+          progressText.textContent   = `Subiendo... ${pct}%`;
+        },
+        err => {
+          console.error("[Storage] Error al subir:", err);
+          progressWrap.style.display = "none";
+          reject(err);
+        },
+        async () => {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          progressText.textContent = "Imagen subida";
+          setTimeout(() => { progressWrap.style.display = "none"; }, 1500);
+          resolve(url);
+        }
+      );
+    });
+  }
+
+  // ── Validacion formulario producto ─────────────────────
+  function validateProductForm() {
+    let valid = true;
+
+    function setErr(id, msg) {
+      document.getElementById(id).textContent = msg;
+      valid = false;
+    }
+    function clrErr(id) { document.getElementById(id).textContent = ""; }
+
+    const name     = document.getElementById("productName").value.trim();
+    const category = document.getElementById("productCategory").value.trim();
+    const price    = parseFloat(document.getElementById("productPrice").value);
+    const stock    = parseInt(document.getElementById("productStock").value, 10);
+
+    clrErr("errProductName");
+    clrErr("errProductCategory");
+    clrErr("errProductPrice");
+    clrErr("errProductStock");
+
+    if (!name)                   setErr("errProductName",     "El nombre es obligatorio.");
+    if (!category)               setErr("errProductCategory", "La categoria es obligatoria.");
+    if (isNaN(price) || price < 0) setErr("errProductPrice",  "Ingresa un precio valido.");
+    if (isNaN(stock) || stock < 0) setErr("errProductStock",  "Ingresa un stock valido.");
+
+    return valid;
+  }
+
+  // ── Guardar producto (crear o editar) ──────────────────
+  document.getElementById("saveProductBtn").addEventListener("click", async () => {
+    if (!validateProductForm()) return;
+
+    const saveBtn   = document.getElementById("saveProductBtn");
+    saveBtn.disabled   = true;
+    saveBtn.textContent = "Guardando...";
+
+    try {
+      const name     = document.getElementById("productName").value.trim();
+      const category = document.getElementById("productCategory").value.trim();
+      const price    = parseFloat(document.getElementById("productPrice").value);
+      const discount = parseInt(document.getElementById("productDiscount").value, 10) || 0;
+      const stock    = parseInt(document.getElementById("productStock").value, 10);
+      const description = document.getElementById("productDescription").value.trim();
+      const featured = document.getElementById("productFeatured").checked;
+
+      let imageUrl = null;
+
+      // Subir imagen si se selecciono una nueva
+      if (selectedFile) {
+        imageUrl = await uploadImage(selectedFile);
+      }
+
+      if (editingId) {
+        // ── Editar producto existente ──────────────────
+        const updateData = { name, category, price, discount, stock, description, featured };
+        if (imageUrl) updateData.image = imageUrl;
+        await updateDoc(doc(db, "products", editingId), updateData);
+        showToast("Producto actualizado", "success");
+      } else {
+        // ── Crear nuevo producto ───────────────────────
+        await addDoc(collection(db, "products"), {
+          name, category, price, discount, stock,
+          description, featured,
+          sold:      0,
+          image:     imageUrl || "",
+          createdAt: serverTimestamp()
+        });
+        showToast("Producto creado", "success");
+      }
+
+      closeProductModal();
+    } catch (err) {
+      console.error("[Dashboard] Error guardando producto:", err);
+      showToast("Error al guardar el producto", "error");
+    } finally {
+      saveBtn.disabled   = false;
+      saveBtn.textContent = "Guardar producto";
+    }
+  });
+
+  // ── Eliminar producto ──────────────────────────────────
+  async function confirmDeleteProduct(id) {
+    const product = allProducts.find(p => p.id === id);
+    if (!confirm(`¿Eliminar "${product?.name}"? Esta accion no se puede deshacer.`)) return;
+
+    try {
+      // Eliminar imagen de Storage si existe
+      if (product?.image) {
+        try {
+          const imgRef = ref(storage, product.image);
+          await deleteObject(imgRef);
+        } catch {
+          // Si la imagen no existe en storage, ignoramos el error
+        }
+      }
+      await deleteDoc(doc(db, "products", id));
+      showToast("Producto eliminado", "success");
+    } catch (err) {
+      console.error("[Dashboard] Error eliminando producto:", err);
+      showToast("Error al eliminar el producto", "error");
+    }
+  }
+
+  // ===================================================
+  // PEDIDOS
+  // ===================================================
+
+  function listenOrders() {
+    const q = query(collection(db, "pedidos"), orderBy("data", "desc"));
+    onSnapshot(q, snapshot => {
+      allOrders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderOrdersTable(allOrders);
+      renderRecentOrders(allOrders.slice(0, 5));
+      updateStats();
+    }, err => {
+      console.error("[Dashboard] Error pedidos:", err);
+      showToast("Error al cargar pedidos", "error");
+    });
+  }
+
+  // Filtro de estado de pedidos
+  document.getElementById("orderFilter").addEventListener("change", e => {
+    const val = e.target.value;
+    const filtered = val === "all" ? allOrders : allOrders.filter(o => o.estado === val);
+    renderOrdersTable(filtered);
+  });
+
+  function renderOrdersTable(orders) {
+    const tbody = document.getElementById("ordersTableBody");
+    if (!orders.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Sin pedidos</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = orders.map(o => {
+      const productsSummary = (o.productos || [])
+        .map(p => `${p.nome} x${p.quantidade}`)
+        .join(", ");
+
+      return `
+        <tr>
+          <td style="font-family:monospace;font-size:.78rem;color:var(--text-muted);">${o.id.slice(0,8).toUpperCase()}</td>
+          <td>
+            <div style="font-weight:600;">${o.cliente?.nome || "—"}</div>
+            <div style="font-size:.78rem;color:var(--text-muted);">${o.cliente?.telefone || ""}</div>
+          </td>
+          <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+              title="${productsSummary}">${productsSummary}</td>
+          <td style="font-weight:700;color:var(--accent);">${formatPrice(o.total || 0)}</td>
+          <td>${o.metodo_pago || "—"}</td>
+          <td>${statusBadge(o.estado)}</td>
+          <td style="font-size:.8rem;color:var(--text-muted);">${formatDate(o.data)}</td>
+          <td>
+            <select class="status-select" data-order-id="${o.id}" aria-label="Cambiar estado del pedido ${o.id.slice(0,8)}">
+              <option value="Pendente"   ${o.estado === "Pendente"   ? "selected" : ""}>Pendente</option>
+              <option value="Pago"       ${o.estado === "Pago"       ? "selected" : ""}>Pago</option>
+              <option value="Confirmado" ${o.estado === "Confirmado" ? "selected" : ""}>Confirmado</option>
+              <option value="Enviado"    ${o.estado === "Enviado"    ? "selected" : ""}>Enviado</option>
+              <option value="Cancelado"  ${o.estado === "Cancelado"  ? "selected" : ""}>Cancelado</option>
+            </select>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    // Listeners para cambio de estado
+    tbody.querySelectorAll("select[data-order-id]").forEach(sel => {
+      sel.addEventListener("change", async () => {
+        const orderId   = sel.dataset.orderId;
+        const newStatus = sel.value;
+        const order     = allOrders.find(o => o.id === orderId);
+        if (!order) return;
+
+        await changeOrderStatus(orderId, order.estado, newStatus, order.productos || []);
+      });
+    });
+  }
+
+  function renderRecentOrders(orders) {
+    const tbody = document.getElementById("recentOrdersBody");
+    if (!orders.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem;">Sin pedidos recientes</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td style="font-family:monospace;font-size:.78rem;color:var(--text-muted);">${o.id.slice(0,8).toUpperCase()}</td>
+        <td>${o.cliente?.nome || "—"}</td>
+        <td style="font-weight:700;color:var(--accent);">${formatPrice(o.total || 0)}</td>
+        <td>${o.metodo_pago || "—"}</td>
+        <td>${statusBadge(o.estado)}</td>
+        <td style="font-size:.8rem;color:var(--text-muted);">${formatDate(o.data)}</td>
+      </tr>
+    `).join("");
+  }
+
+  // ── Cambio de estado del pedido con transaction ────────
+  async function changeOrderStatus(orderId, oldStatus, newStatus, productos) {
+    if (oldStatus === newStatus) return;
+
+    try {
+      await runTransaction(db, async transaction => {
+
+        // Leer el pedido actual dentro de la transaccion
+        const orderRef  = doc(db, "pedidos", orderId);
+        const orderSnap = await transaction.get(orderRef);
+        if (!orderSnap.exists()) throw new Error("Pedido no encontrado");
+
+        // Verificar que el estado actual coincide (evitar doble ejecucion)
+        const currentStatus = orderSnap.data().estado;
+        if (currentStatus !== oldStatus) {
+          throw new Error("El estado del pedido ya fue modificado");
+        }
+
+        // ── Caso: Pago → descontar stock y sumar sold ──
+        if (newStatus === "Pago" && currentStatus !== "Pago") {
+          for (const item of productos) {
+            const productRef  = doc(db, "products", item.id);
+            const productSnap = await transaction.get(productRef);
+
+            if (!productSnap.exists()) {
+              throw new Error(`Producto "${item.nome}" no encontrado`);
+            }
+
+            const currentStock = productSnap.data().stock ?? 0;
+            if (currentStock < item.quantidade) {
+              throw new Error(
+                `Stock insuficiente para "${item.nome}". Disponible: ${currentStock}, solicitado: ${item.quantidade}`
+              );
+            }
+
+            // Descontar stock y aumentar sold
+            transaction.update(productRef, {
+              stock: increment(-item.quantidade),
+              sold:  increment(item.quantidade)
+            });
+          }
+        }
+
+        // ── Caso: era "Pago" y se cancela → restaurar stock ──
+        if (oldStatus === "Pago" && newStatus === "Cancelado") {
+          for (const item of productos) {
+            const productRef = doc(db, "products", item.id);
+            transaction.update(productRef, {
+              stock: increment(item.quantidade),
+              sold:  increment(-item.quantidade)
+            });
+          }
+        }
+
+        // Actualizar estado del pedido
+        transaction.update(orderRef, { estado: newStatus });
+      });
+
+      showToast(`Pedido actualizado a "${newStatus}"`, "success");
+    } catch (err) {
+      console.error("[Dashboard] Error cambiando estado:", err);
+      showToast(`Error: ${err.message}`, "error");
+      // Revertir el select visualmente
+      const sel = document.querySelector(`select[data-order-id="${orderId}"]`);
+      if (sel) sel.value = oldStatus;
+    }
+  }
+
+  // ===================================================
+  // CONFIGURACION
+  // ===================================================
+
+  async function loadSettings() {
+    try {
+      // Pix
+      const pixSnap = await getDoc(doc(db, "settings", "pix"));
+      if (pixSnap.exists()) {
+        document.getElementById("pixKeyInput").value = pixSnap.data().key || "";
+      }
+      // Cartilla
+      const cartSnap = await getDoc(doc(db, "settings", "cartilla"));
+      if (cartSnap.exists()) {
+        document.getElementById("cartillaInput").value = cartSnap.data().texto || "";
+      }
+    } catch (err) {
+      console.error("[Dashboard] Error cargando settings:", err);
+    }
+  }
+
+  document.getElementById("savePixBtn").addEventListener("click", async () => {
+    const key = document.getElementById("pixKeyInput").value.trim();
+    if (!key) { showToast("Ingresa una clave Pix", "warning"); return; }
+
+    try {
+      await updateDoc(doc(db, "settings", "pix"), { key });
+      showToast("Clave Pix guardada", "success");
+    } catch {
+      // Si el doc no existe, lo creamos
+      try {
+        await addDoc(collection(db, "settings"), { key });
+        showToast("Clave Pix guardada", "success");
+      } catch (err) {
+        console.error("[Dashboard] Error guardando Pix:", err);
+        showToast("Error al guardar", "error");
+      }
+    }
+  });
+
+  // Guardar con setDoc para garantizar el ID "pix"
+  document.getElementById("savePixBtn").addEventListener("click", async () => {
+    // Implementado con import dinamico para evitar circular
+  }, { once: true });
+
+  document.getElementById("saveCartillaBtn").addEventListener("click", async () => {
+    const texto = document.getElementById("cartillaInput").value.trim();
+    try {
+      const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      await setDoc(doc(db, "settings", "cartilla"), { texto }, { merge: true });
+      showToast("Aviso guardado", "success");
+    } catch (err) {
+      console.error("[Dashboard] Error guardando cartilla:", err);
+      showToast("Error al guardar", "error");
+    }
+  });
+
+  // Guardar Pix usando setDoc (ID fijo "pix")
+  async function savePixKey() {
+    const key = document.getElementById("pixKeyInput").value.trim();
+    if (!key) { showToast("Ingresa una clave Pix", "warning"); return; }
+    try {
+      const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+      await setDoc(doc(db, "settings", "pix"), { key }, { merge: true });
+      showToast("Clave Pix guardada", "success");
+    } catch (err) {
+      console.error("[Dashboard] Error guardando Pix:", err);
+      showToast("Error al guardar", "error");
+    }
+  }
+
+  document.getElementById("savePixBtn").onclick = savePixKey;
+
+  // ===================================================
+  // INIT
+  // ===================================================
+  function initDashboard() {
+    listenProducts();
+    listenOrders();
+    loadSettings();
+    setSection("overview");
+  }
+</script>
+</body>
+</html>

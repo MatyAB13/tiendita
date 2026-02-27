@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — TiendaOnline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── Navbar ──────────────────────────────────────────── -->
+  <nav class="navbar" role="navigation" aria-label="Navegación principal">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">Tienda<span>Online</span></a>
+      <div class="navbar-actions">
+        <a href="cart.html" class="btn btn-secondary btn-sm">Volver al carrito</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main ─────────────────────────────────────────────── -->
+  <main>
+    <div class="container">
+
+      <div class="section-header" style="margin-bottom:1.5rem;">
+        <h1 class="section-title">Finalizar Pedido</h1>
+      </div>
+
+      <!-- Layout checkout -->
+      <div class="checkout-layout">
+
+        <!-- ── Formulario ─────────────────────────────────── -->
+        <div>
+
+          <!-- Paso 1: Datos del cliente -->
+          <section class="card" style="margin-bottom:1.5rem;" aria-labelledby="step1-title">
+            <div class="card-body">
+              <h2 id="step1-title" style="font-size:1rem; font-weight:700; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem;">
+                <span style="background:var(--accent); color:#fff; border-radius:50%; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem;" aria-hidden="true">1</span>
+                Datos del cliente
+              </h2>
+
+              <div class="form-group">
+                <label class="form-label" for="client-name">Nombre completo *</label>
+                <input class="form-control" type="text" id="client-name" placeholder="Tu nombre" required autocomplete="name" />
+              </div>
+
+              <div class="form-row form-row-2">
+                <div class="form-group">
+                  <label class="form-label" for="client-phone">Teléfono / WhatsApp *</label>
+                  <input class="form-control" type="tel" id="client-phone" placeholder="+54 11 0000-0000" required autocomplete="tel" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="client-email">Email (opcional)</label>
+                  <input class="form-control" type="email" id="client-email" placeholder="tu@email.com" autocomplete="email" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="client-address">Dirección de entrega *</label>
+                <textarea class="form-control" id="client-address" rows="3" placeholder="Calle, número, ciudad, provincia…" required autocomplete="street-address"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <!-- Paso 2: Método de pago -->
+          <section class="card" style="margin-bottom:1.5rem;" aria-labelledby="step2-title">
+            <div class="card-body">
+              <h2 id="step2-title" style="font-size:1rem; font-weight:700; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem;">
+                <span style="background:var(--accent); color:#fff; border-radius:50%; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem;" aria-hidden="true">2</span>
+                Método de pago
+              </h2>
+
+              <!-- PIX -->
+              <label class="payment-option" id="opt-pix" aria-label="Pagar con PIX">
+                <input type="radio" name="payment" value="pix" checked />
+                <div>
+                  <p class="payment-option-label">PIX</p>
+                  <p class="payment-option-desc">Transferencia instantánea — confirmación automática</p>
+                </div>
+              </label>
+
+              <!-- MercadoPago -->
+              <label class="payment-option" id="opt-mp" aria-label="Pagar con Mercado Pago">
+                <input type="radio" name="payment" value="mercadopago" />
+                <div>
+                  <p class="payment-option-label">Mercado Pago</p>
+                  <p class="payment-option-desc">Tarjeta, débito, cuotas — seguro y rápido</p>
+                </div>
+              </label>
+
+              <!-- Manual / Acuerdo -->
+              <label class="payment-option" id="opt-manual" aria-label="Pagar de forma manual">
+                <input type="radio" name="payment" value="manual" />
+                <div>
+                  <p class="payment-option-label">Pago manual / Acuerdo</p>
+                  <p class="payment-option-desc">Coordinar pago directamente con el vendedor</p>
+                </div>
+              </label>
+
+              <!-- Info PIX (dinámica) -->
+              <div class="pix-info" id="pix-info" role="region" aria-label="Instrucciones de pago PIX">
+                <p style="font-size:.85rem; font-weight:600; color:#065F46;">Clave PIX para transferencia:</p>
+                <div class="pix-key" id="pix-key" aria-label="Clave PIX">Cargando…</div>
+                <p style="font-size:.78rem; color:#047857; margin-top:.5rem;">Realiza la transferencia y envía el comprobante por WhatsApp.</p>
+              </div>
+
+              <!-- Info Mercado Pago -->
+              <div id="mp-info" style="display:none; background:#EFF6FF; border:1.5px solid #93C5FD; border-radius:var(--radius); padding:1rem; margin-top:.75rem;" role="region" aria-label="Información de pago Mercado Pago">
+                <p style="font-size:.85rem; color:#1E40AF; font-weight:600;">Pago via Mercado Pago</p>
+                <p style="font-size:.8rem; color:#1D4ED8; margin-top:.25rem;">
+                  <!-- TODO: Integrar Webhook de Mercado Pago -->
+                  <!-- Estructura lista para recibir preferenceId y redirect -->
+                  Se te enviará el link de pago por WhatsApp tras confirmar el pedido.
+                </p>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- Notas adicionales -->
+          <section class="card" aria-labelledby="step3-title">
+            <div class="card-body">
+              <h2 id="step3-title" style="font-size:1rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:.5rem;">
+                <span style="background:var(--accent); color:#fff; border-radius:50%; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem;" aria-hidden="true">3</span>
+                Notas del pedido
+              </h2>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="order-notes">Instrucciones adicionales (opcional)</label>
+                <textarea class="form-control" id="order-notes" rows="2" placeholder="Horario de entrega preferido, referencias, etc."></textarea>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ── Resumen de la orden ─────────────────────────── -->
+        <aside aria-label="Resumen del pedido">
+          <div class="cart-summary">
+            <h2 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">Tu pedido</h2>
+
+            <div id="order-items-list" style="margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+              <!-- items -->
+            </div>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="co-subtotal">$0</span>
+            </div>
+            <div class="summary-row">
+              <span>Envío</span>
+              <span style="color:var(--success); font-weight:600;">GRATIS</span>
+            </div>
+            <div class="summary-row summary-total">
+              <span>Total</span>
+              <span id="co-total">$0</span>
+            </div>
+
+            <button
+              class="btn btn-success btn-full btn-lg"
+              id="btn-confirm-order"
+              style="margin-top:1.25rem;"
+              aria-label="Confirmar pedido"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmar pedido
+            </button>
+
+            <p style="font-size:.78rem; color:var(--text-muted); text-align:center; margin-top:.75rem;">
+              Al confirmar aceptas nuestros términos de servicio.
+            </p>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Footer ────────────────────────────────────────────── -->
+  <footer>
+    <p>&copy; <span id="year"></span> TiendaOnline. Todos los derechos reservados.</p>
+  </footer>
+
+</div>
+
+<!-- Modal de éxito -->
+<div class="modal-overlay hidden" id="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
+  <div class="modal" style="text-align:center; padding:2.5rem;">
+    <div style="font-size:3.5rem; margin-bottom:1rem;" aria-hidden="true">✓</div>
+    <h2 id="success-title" style="font-size:1.4rem; font-weight:800; margin-bottom:.5rem;">¡Pedido confirmado!</h2>
+    <p style="color:var(--text-muted); margin-bottom:.5rem;">Tu pedido fue registrado correctamente.</p>
+    <p style="font-size:.85rem; color:var(--text-muted); margin-bottom:1.75rem;">
+      ID de pedido: <strong id="order-id-display" style="font-family:var(--font-mono); color:var(--accent);"></strong>
+    </p>
+    <a href="index.html" class="btn btn-primary btn-lg">Volver a la tienda</a>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script type="module">
+// ── Imports Firebase ──────────────────────────────────────
+import { db } from "./firebase-config.js";
+import {
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ── Año ───────────────────────────────────────────────────
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// ── Estado ────────────────────────────────────────────────
+let cart           = [];
+let selectedPayment = "pix";
+let pixKey          = "";
+
+// ── DOM refs ──────────────────────────────────────────────
+const orderItemsList  = document.getElementById("order-items-list");
+const coSubtotal      = document.getElementById("co-subtotal");
+const coTotal         = document.getElementById("co-total");
+const pixKeyEl        = document.getElementById("pix-key");
+const pixInfoEl       = document.getElementById("pix-info");
+const mpInfoEl        = document.getElementById("mp-info");
+const confirmBtn      = document.getElementById("btn-confirm-order");
+
+// ── Formatear precio ──────────────────────────────────────
+function formatPrice(n) {
+  return "$" + Number(n).toLocaleString("es", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// ── Cargar carrito ────────────────────────────────────────
+function loadCart() {
+  try { cart = JSON.parse(localStorage.getItem("cart")) || []; }
+  catch { cart = []; }
+
+  if (cart.length === 0) {
+    window.location.href = "cart.html";
+    return;
+  }
+
+  renderOrderSummary();
+}
+
+// ── Render resumen ────────────────────────────────────────
+function renderOrderSummary() {
+  let total = 0;
+
+  orderItemsList.innerHTML = cart.map(item => {
+    const lineTotal = item.price * item.quantity;
+    total += lineTotal;
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:.4rem 0; font-size:.875rem;">
+        <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          ${item.name} <span style="color:var(--text-muted);">x${item.quantity}</span>
+        </span>
+        <span style="font-weight:600; margin-left:.75rem;">${formatPrice(lineTotal)}</span>
+      </div>`;
+  }).join("");
+
+  coSubtotal.textContent = formatPrice(total);
+  coTotal.textContent    = formatPrice(total);
+}
+
+// ── Cargar configuración PIX ──────────────────────────────
+async function loadSettings() {
+  try {
+    const settingsDoc = await getDoc(doc(db, "settings", "pix"));
+    if (settingsDoc.exists()) {
+      pixKey = settingsDoc.data().key || "Clave PIX no configurada";
+      pixKeyEl.textContent = pixKey;
+    } else {
+      pixKeyEl.textContent = "Solicita la clave al vendedor";
+    }
+  } catch (err) {
+    console.error("[Checkout] Error cargando settings:", err);
+    pixKeyEl.textContent = "Error al cargar la clave PIX";
+  }
+}
+
+// ── Manejo de métodos de pago ─────────────────────────────
+document.querySelectorAll("input[name='payment']").forEach(radio => {
+  radio.addEventListener("change", e => {
+    selectedPayment = e.target.value;
+
+    // Actualizar UI
+    document.querySelectorAll(".payment-option").forEach(opt => opt.classList.remove("selected"));
+    e.target.closest(".payment-option").classList.add("selected");
+
+    // Mostrar/ocultar info de pago
+    pixInfoEl.style.display = selectedPayment === "pix"         ? "block" : "none";
+    mpInfoEl.style.display  = selectedPayment === "mercadopago" ? "block" : "none";
+  });
+});
+
+// Selección inicial
+document.querySelector("input[value='pix']").closest(".payment-option").classList.add("selected");
+
+// ── Validar formulario ────────────────────────────────────
+function validateForm() {
+  const name    = document.getElementById("client-name").value.trim();
+  const phone   = document.getElementById("client-phone").value.trim();
+  const address = document.getElementById("client-address").value.trim();
+
+  if (!name)    { showToast("Ingresa tu nombre completo", "error"); return false; }
+  if (!phone)   { showToast("Ingresa tu teléfono", "error"); return false; }
+  if (!address) { showToast("Ingresa tu dirección de entrega", "error"); return false; }
+
+  return true;
+}
+
+// ── Crear pedido en Firestore ─────────────────────────────
+confirmBtn.addEventListener("click", async () => {
+  if (!validateForm()) return;
+
+  const total = cart.reduce((acc, i) => acc + i.price * i.quantity, 0);
+
+  const orderData = {
+    cliente: {
+      nome:     document.getElementById("client-name").value.trim(),
+      telefone: document.getElementById("client-phone").value.trim(),
+      email:    document.getElementById("client-email").value.trim() || null,
+      endereco: document.getElementById("client-address").value.trim()
+    },
+    productos: cart.map(item => ({
+      id:         item.id,
+      nome:       item.name,
+      quantidade: item.quantity,
+      preco:      item.price
+    })),
+    total:        +total.toFixed(2),
+    metodo_pago:  selectedPayment,
+    notas:        document.getElementById("order-notes").value.trim() || null,
+    estado:       "Pendente",
+    data:         serverTimestamp(),
+    // ── Preparado para Webhook Mercado Pago ──────────────
+    // mp_preference_id: null,   // Se llenará al crear preferencia MP
+    // mp_payment_id:    null,   // Se llenará al recibir el webhook
+    // mp_status:        null
+  };
+
+  // Deshabilitar botón
+  confirmBtn.disabled     = true;
+  confirmBtn.textContent  = "Procesando…";
+
+  try {
+    const docRef = await addDoc(collection(db, "pedidos"), orderData);
+
+    // Limpiar carrito
+    localStorage.removeItem("cart");
+
+    // Mostrar modal de éxito
+    document.getElementById("order-id-display").textContent = docRef.id;
+    document.getElementById("success-modal").classList.remove("hidden");
+
+  } catch (err) {
+    console.error("[Checkout] Error al crear pedido:", err);
+    showToast("Error al procesar el pedido. Intenta nuevamente.", "error");
+    confirmBtn.disabled    = false;
+    confirmBtn.textContent = "Confirmar pedido";
+  }
+});
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  const toast     = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute("role", "alert");
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ── Init ──────────────────────────────────────────────────
+loadCart();
+loadSettings();
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tienda Online</title>
+  <meta name="description" content="Tienda online profesional — encuentra los mejores productos." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── Navbar ──────────────────────────────────────────── -->
+  <nav class="navbar" role="navigation" aria-label="Navegación principal">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">Tienda<span>Online</span></a>
+      <div class="navbar-actions">
+        <button class="nav-cart-btn" onclick="window.location.href='cart.html'" aria-label="Ver carrito">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Carrito
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <section class="hero" aria-label="Banner principal">
+    <div class="container">
+      <h1 class="hero-title">Lo mejor en<span> productos</span></h1>
+      <p class="hero-subtitle">Descubre nuestra selección curada con descuentos exclusivos y envío rápido.</p>
+    </div>
+  </section>
+
+  <!-- ── Main content ─────────────────────────────────────── -->
+  <main>
+    <div class="container">
+
+      <!-- Filtros de categoría -->
+      <div class="filters" id="filters-container" role="group" aria-label="Filtrar por categoría">
+        <button class="filter-btn active" data-category="all">Todos</button>
+      </div>
+
+      <!-- Barra de búsqueda -->
+      <div class="search-bar" style="max-width:380px; margin-bottom:1.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="search-input" placeholder="Buscar producto..." aria-label="Buscar producto" autocomplete="off" />
+      </div>
+
+      <!-- Grid de productos -->
+      <div id="products-container">
+        <div class="loader" role="status" aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Cargando productos…</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── Footer ────────────────────────────────────────────── -->
+  <footer>
+    <p>&copy; <span id="year"></span> TiendaOnline. Todos los derechos reservados.</p>
+  </footer>
+
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script type="module">
+// ── Imports Firebase ──────────────────────────────────────
+import { db } from "./firebase-config.js";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ── Estado ────────────────────────────────────────────────
+let allProducts   = [];
+let activeCategory = "all";
+let searchQuery    = "";
+
+// ── DOM refs ──────────────────────────────────────────────
+const productsContainer = document.getElementById("products-container");
+const filtersContainer  = document.getElementById("filters-container");
+const searchInput       = document.getElementById("search-input");
+const cartCountEl       = document.getElementById("cart-count");
+
+// ── Año ───────────────────────────────────────────────────
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// ── Carrito (localStorage) ────────────────────────────────
+function getCart() {
+  try { return JSON.parse(localStorage.getItem("cart")) || []; }
+  catch { return []; }
+}
+
+function saveCart(cart) {
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function updateCartCount() {
+  const cart  = getCart();
+  const total = cart.reduce((acc, item) => acc + item.quantity, 0);
+  cartCountEl.textContent = total;
+}
+
+/**
+ * Agrega un producto al carrito.
+ * Valida stock antes de agregar.
+ * @param {Object} product
+ */
+function addToCart(product) {
+  if (product.stock === 0) {
+    showToast("Producto agotado", "error");
+    return;
+  }
+
+  const cart    = getCart();
+  const existing = cart.find(i => i.id === product.id);
+
+  if (existing) {
+    if (existing.quantity >= product.stock) {
+      showToast("No hay más stock disponible", "warning");
+      return;
+    }
+    existing.quantity += 1;
+  } else {
+    cart.push({
+      id:       product.id,
+      name:     product.name,
+      price:    getFinalPrice(product),
+      image:    product.image || "",
+      stock:    product.stock,
+      quantity: 1
+    });
+  }
+
+  saveCart(cart);
+  updateCartCount();
+  showToast(`"${product.name}" agregado al carrito`, "success");
+}
+
+// ── Precio final con descuento ─────────────────────────────
+function getFinalPrice(product) {
+  const discount = product.discount || 0;
+  if (discount > 0 && discount < 100) {
+    return +(product.price * (1 - discount / 100)).toFixed(2);
+  }
+  return product.price;
+}
+
+// ── Renderizado de categorías (filtros dinámicos) ──────────
+function renderFilters(products) {
+  const categories = ["all", ...new Set(products.map(p => p.category).filter(Boolean))];
+  filtersContainer.innerHTML = "";
+
+  categories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className  = "filter-btn" + (cat === activeCategory ? " active" : "");
+    btn.textContent = cat === "all" ? "Todos" : cat;
+    btn.dataset.category = cat;
+
+    btn.addEventListener("click", () => {
+      activeCategory = cat;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderProducts();
+    });
+
+    filtersContainer.appendChild(btn);
+  });
+}
+
+// ── Renderizado de products ────────────────────────────────
+function renderProducts() {
+  let filtered = allProducts;
+
+  // Filtrar por categoría
+  if (activeCategory !== "all") {
+    filtered = filtered.filter(p => p.category === activeCategory);
+  }
+
+  // Filtrar por búsqueda
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.description || "").toLowerCase().includes(q) ||
+      (p.category || "").toLowerCase().includes(q)
+    );
+  }
+
+  // Sin resultados
+  if (filtered.length === 0) {
+    productsContainer.innerHTML = `
+      <div class="empty-state" role="status">
+        <div class="empty-state-icon" aria-hidden="true">📦</div>
+        <h3>No hay productos</h3>
+        <p>Intenta con otro filtro o búsqueda.</p>
+      </div>`;
+    return;
+  }
+
+  productsContainer.innerHTML = `<div class="products-grid">${filtered.map(productCard).join("")}</div>`;
+
+  // Eventos de botones
+  productsContainer.querySelectorAll(".btn-add-cart").forEach(btn => {
+    const id = btn.dataset.id;
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const product = allProducts.find(p => p.id === id);
+      if (product) addToCart(product);
+    });
+  });
+
+  // Clic en card → ir a detalle
+  productsContainer.querySelectorAll(".product-card").forEach(card => {
+    card.addEventListener("click", e => {
+      if (e.target.closest("button")) return;
+      window.location.href = `product.html?id=${card.dataset.id}`;
+    });
+  });
+}
+
+// ── Plantilla de tarjeta de producto ──────────────────────
+function productCard(product) {
+  const finalPrice    = getFinalPrice(product);
+  const hasDiscount   = product.discount > 0;
+  const outOfStock    = product.stock === 0;
+  const imgSrc        = product.image || "https://placehold.co/400x300?text=Producto";
+
+  const badges = `
+    <div class="product-badges">
+      ${outOfStock    ? '<span class="badge badge-out">Agotado</span>' : ""}
+      ${hasDiscount && !outOfStock ? `<span class="badge badge-discount">-${product.discount}%</span>` : ""}
+      ${product.featured ? '<span class="badge badge-featured">Destacado</span>' : ""}
+    </div>`;
+
+  const priceHTML = hasDiscount
+    ? `<span class="price-final">$${finalPrice.toLocaleString("es")}</span>
+       <span class="price-original">$${product.price.toLocaleString("es")}</span>`
+    : `<span class="price-final">$${product.price.toLocaleString("es")}</span>`;
+
+  return `
+    <article class="card product-card" data-id="${product.id}" tabindex="0" role="button" aria-label="Ver ${product.name}">
+      <div class="product-img-wrap">
+        <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.src='https://placehold.co/400x300?text=Sin+imagen'" />
+        ${badges}
+      </div>
+      <div class="product-info">
+        <p class="product-category">${product.category || "General"}</p>
+        <h2 class="product-name">${product.name}</h2>
+        <div class="product-price-row">${priceHTML}</div>
+        <div class="product-actions">
+          <button
+            class="btn btn-primary btn-sm btn-add-cart"
+            data-id="${product.id}"
+            ${outOfStock ? "disabled aria-disabled='true'" : ""}
+            aria-label="${outOfStock ? "Producto agotado" : "Agregar " + product.name + " al carrito"}"
+          >${outOfStock ? "Agotado" : "Agregar al carrito"}</button>
+          <button class="btn btn-secondary btn-sm" onclick="window.location.href='product.html?id=${product.id}'" aria-label="Ver detalles de ${product.name}">Ver</button>
+        </div>
+      </div>
+    </article>`;
+}
+
+// ── Cargar productos desde Firestore ──────────────────────
+function loadProducts() {
+  const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+
+  onSnapshot(q, snapshot => {
+    allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderFilters(allProducts);
+    renderProducts();
+  }, err => {
+    console.error("[Store] Error cargando productos:", err);
+    productsContainer.innerHTML = `
+      <div class="empty-state" role="alert">
+        <h3>Error al cargar los productos</h3>
+        <p>Verifica la configuración de Firebase.</p>
+      </div>`;
+  });
+}
+
+// ── Búsqueda ──────────────────────────────────────────────
+searchInput.addEventListener("input", e => {
+  searchQuery = e.target.value;
+  renderProducts();
+});
+
+// ── Toast ─────────────────────────────────────────────────
+function showToast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  const toast     = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute("role", "alert");
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3200);
+}
+
+// ── Init ──────────────────────────────────────────────────
+updateCartCount();
+loadProducts();
+</script>
+</body>
+</html>
