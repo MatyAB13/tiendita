@@ -419,7 +419,9 @@
                         details += `- ${p.nome} (x${p.quantidade}): R$ ${(p.preco * p.quantidade).toFixed(2)}\n`;
                     });
                     details += `\nTotal: R$ ${order.total.toFixed(2)}\n`;
-                    details += `Pagamento: ${.metodo_pago}\n; details += Status: ${order.estado}`; alert(details); } } catch (error) { console.error("Error:", error); } };
+                    details += `Pagamento: ${getPaymentMethod(order.metodo_pago)}\n`;
+                    details += `Status: ${order.estado}`;
+                    alert(details);
             window.updateOrderStatus = async (id, status) => {
         if (!status) return;
         try {
@@ -503,3 +505,4 @@
         }
     }
 </script>
+
