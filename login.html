@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Consultora Natura</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2 style="text-align: center;">Acceso Consultora</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required placeholder="tu@email.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Ingresar</button>
+            <p id="error-msg" style="color: #d4a5a5; text-align: center; margin-top: 1rem;"></p>
+        </form>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="index.html" class="btn btn-outline">Volver a la Tienda</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './firebase-config.js';
+        import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
+
+        const form = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-msg');
+
+        // Verificar si ya está logueado
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value ;
+            const password = document.getElementById('password').value ;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                console.error(error);
+                errorMsg.innerText = "Email o contraseña incorrectos";
+            }
+        });
+    </script>
+</body>
+</html>
